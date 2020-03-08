@@ -2,6 +2,9 @@
 # Importing the libraries
 # =======================
 
+import os
+initial_path = os.getcwd()
+
 import sys
 directory = './lib_class'
 sys.path.insert(0, directory)
@@ -40,10 +43,6 @@ print ' ------'
 print ' INPUT:'
 print ' ------'
 print ""
-
-# ----------------------------------------------------------------------------
-benchmark_problem = 'Half Poiseuille'
-# ----------------------------------------------------------------------------
 
 
 # ----------------------------------------------------------------------------
@@ -209,6 +208,7 @@ if polynomial_option == 1:
  condition_xvelocity.dirichlet_condition(dirichlet_pts[1])
  condition_xvelocity.gaussian_elimination(xvelocity_LHS0,neighbors_nodes)
  vorticity_ibc = condition_xvelocity.ibc
+ benchmark_problem = condition_xvelocity.benchmark_problem
 
  # Applying vy condition
  yvelocity_LHS0 = sps.lil_matrix.copy(M)
@@ -233,6 +233,7 @@ elif polynomial_option == 2:
  condition_xvelocity.dirichlet_condition(dirichlet_pts[1])
  condition_xvelocity.gaussian_elimination(xvelocity_LHS0,neighbors_nodes)
  vorticity_ibc = condition_xvelocity.ibc
+ benchmark_problem = condition_xvelocity.benchmark_problem
 
  # Applying vy condition
  yvelocity_LHS0 = sps.lil_matrix.copy(M)
@@ -258,6 +259,7 @@ elif polynomial_option == 3:
  condition_xvelocity.dirichlet_condition(dirichlet_pts[1])
  condition_xvelocity.gaussian_elimination(xvelocity_LHS0,neighbors_nodes)
  vorticity_ibc = condition_xvelocity.ibc
+ benchmark_problem = condition_xvelocity.benchmark_problem
 
  # Applying vy condition
  yvelocity_LHS0 = sps.lil_matrix.copy(M)
@@ -338,6 +340,7 @@ print ""
 
 
 start_time = time()
+os.chdir(initial_path)
 
 
 
@@ -498,7 +501,7 @@ print ' End simulation. Relatory saved in %s' %directory_save
 print ""
 
 # -------------------------------- Export Relatory ---------------------------------------
-relatory.export(directory_save, sys.argv[0], benchmark_problem, scheme_name, mesh_name, equation_number, npoints, nelem, length_min, dt, nt, Re, Sc, import_mesh_time, assembly_time, bc_apply_time, solution_time, polynomial_order, gausspoints)
+relatory.export(save.path, directory_save, sys.argv[0], benchmark_problem, scheme_name, mesh_name, equation_number, npoints, nelem, length_min, dt, nt, Re, Sc, import_mesh_time, assembly_time, bc_apply_time, solution_time, polynomial_order, gausspoints)
 
 
 
