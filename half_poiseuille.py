@@ -161,7 +161,7 @@ nphysical              = msh.nphysical
 
 CFL = 0.5
 #dt = float(CFL*length_min)
-dt = 0.0300224
+dt = 0.03
 Re = 100.0
 Sc = 1.0
 
