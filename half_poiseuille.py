@@ -90,8 +90,8 @@ start_time = time()
 
 # Linear Element
 if polynomial_option == 1:
- mesh_name = 'malha_half_poiseuille.msh'
- equation_number = 3
+ mesh_name = 'malha_half_poiseuille_ALE.msh'
+ equation_number = 4
 
  directory = search_file.Find(mesh_name)
  if directory == 'File not found':
