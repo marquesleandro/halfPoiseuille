@@ -90,8 +90,8 @@ start_time = time()
 
 # Linear Element
 if polynomial_option == 1:
- mesh_name = 'malha_half_poiseuille_ALE.msh'
- equation_number = 4
+ mesh_name = 'malha_half_poiseuille.msh'
+ equation_number = 3
 
  directory = search_file.Find(mesh_name)
  if directory == 'File not found':
@@ -161,7 +161,7 @@ nphysical              = msh.nphysical
 
 CFL = 0.5
 #dt = float(CFL*length_min)
-dt = 0.03
+dt = 0.005
 Re = 100.0
 Sc = 1.0
 
@@ -502,6 +502,5 @@ print ""
 
 # -------------------------------- Export Relatory ---------------------------------------
 relatory.export(save.path, directory_save, sys.argv[0], benchmark_problem, scheme_name, mesh_name, equation_number, npoints, nelem, length_min, dt, nt, Re, Sc, import_mesh_time, assembly_time, bc_apply_time, solution_time, polynomial_order, gausspoints)
-
 
 
