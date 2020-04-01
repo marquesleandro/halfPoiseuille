@@ -10,7 +10,7 @@ $PhysicalNames
 1 5 "dirichlet2 noslip top"
 1 6 "neumann2 outflow"
 1 7 "dirichlet2 inflow"
-1 8 "dirichlet2 symmetric"
+1 8 "neumann2 symmetric"
 1 9 "dirichlet3 symmetric"
 1 10 "neumann3 outflow"
 1 11 "dirichlet3 inflow"
