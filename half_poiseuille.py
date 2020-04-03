@@ -339,31 +339,93 @@ print ""
 
 
 
-start_time = time()
+start_solution_time = time()
 os.chdir(initial_path)
 
 
 
 vorticity_bc_1 = np.zeros([npoints,1], dtype = float) 
+x_old = np.zeros([npoints,1], dtype = float)
+y_old = np.zeros([npoints,1], dtype = float)
+vx_old = np.zeros([npoints,1], dtype = float)
+vy_old = np.zeros([npoints,1], dtype = float)
+end_type = 0
 for t in tqdm(range(0, nt)):
+
+ print ""
+ print '''
+                COPYRIGHT                    
+  ======================================
+  Simulator: %s
+  created by Leandro Marques at 02/2019
+  e-mail: marquesleandro67@gmail.com
+  Gesar Search Group
+  State University of the Rio de Janeiro
+  ======================================
+ ''' %sys.argv[0]
+
+
+
+ print ' -----------------------------'
+ print ' PARAMETERS OF THE SIMULATION:'
+ print ' -----------------------------'
+ 
+ print ' Mesh: %s' %mesh_name
+ print ' Number of equation: %s' %equation_number
+ print ' Number of nodes: %s' %npoints
+ print ' Number of elements: %s' %nelem
+ print ' Smallest edge length: %f' %length_min
+ print ' Time step: %s' %dt
+ print ' Number of time iteration: %s' %t
+ print ' Reynolds number: %s' %Re
+ print ' Schmidt number: %s' %Sc
+ print ""
+
+
+
+
+
+ # ------------------------ Export VTK File ---------------------------------------
+ print ' ----------------'
+ print ' EXPORT VTK FILE:'
+ print ' ----------------'
+
+
+ start_time = time()
 
 
  # Linear and Mini Elements
  if polynomial_option == 1 or polynomial_option == 2:   
-  # ------------------------ Export VTK File ---------------------------------------
   save = export_vtk.Linear2D(x,y,IEN,npoints,nelem,w,w,psi,vx,vy)
   save.create_dir(directory_save)
   save.saveVTK(directory_save + str(t))
-  # --------------------------------------------------------------------------------
 
  # Quad Element
  elif polynomial_option == 3:   
-  # ------------------------ Export VTK File ---------------------------------------
   save = export_vtk.Quad2D(x,y,IEN,npoints,nelem,w,w,psi,vx,vy)
   save.create_dir(directory_save)
   save.saveVTK(directory_save + str(t))
-  # --------------------------------------------------------------------------------
 
+
+ end_time = time()
+ export_time_solver = end_time - start_time
+ print ' time duration: %.1f seconds' %export_time_solver
+ print ""
+ # ---------------------------------------------------------------------------------
+
+
+
+ # ------------------------ SOLVE LINEAR EQUATIONS ----------------------------------
+ print ' ----------------------------'
+ print ' SOLVE THE LINEARS EQUATIONS:'
+ print ' ----------------------------'
+ print ""
+ print ' Saving simulation in %s' %directory_save
+ print ""
+
+ start_solver_time = time()
+
+ 
 
 
  #---------- Step 2 - Compute the boundary conditions for vorticity --------------
@@ -469,6 +531,7 @@ for t in tqdm(range(0, nt)):
 
  #---------- Step 5 - Compute the velocity field -----------------------------------
  # Velocity vx
+ vx_old = np.copy(vx)
  xvelocity_RHS = sps.lil_matrix.dot(Gy,psi)
  xvelocity_RHS = np.multiply(xvelocity_RHS,condition_xvelocity.bc_2)
  xvelocity_RHS = xvelocity_RHS + condition_xvelocity.bc_dirichlet
@@ -476,18 +539,44 @@ for t in tqdm(range(0, nt)):
  vx = vx[0].reshape((len(vx[0]),1))
  
  # Velocity vy
+ vy_old = np.copy(vy)
  yvelocity_RHS = -sps.lil_matrix.dot(Gx,psi)
  yvelocity_RHS = np.multiply(yvelocity_RHS,condition_yvelocity.bc_2)
  yvelocity_RHS = yvelocity_RHS + condition_yvelocity.bc_dirichlet
  vy = scipy.sparse.linalg.cg(condition_yvelocity.LHS,yvelocity_RHS,vy, maxiter=1.0e+05, tol=1.0e-05)
  vy = vy[0].reshape((len(vy[0]),1))
+ # ---------------------------------------------------------------------------------
+
+
+
+ # ------------------------ CHECK STEADY STATE ----------------------------------
+ vx_dif = np.sqrt((vx-vx_old)**2)
+ vy_dif = np.sqrt((vy-vy_old)**2)
+ if np.all(vx_dif < 5e-50) and np.all(vy_dif < 5e-50):
+  end_type = 1
+  break
+ # ---------------------------------------------------------------------------------
+
+ # ------------------------ CHECK CONVERGENCE RESULT ----------------------------------
+ if np.any(vx > 10e0) or np.any(vy > 10e0):
+  end_type = 2
+  break
+ # ---------------------------------------------------------------------------------
+
+
+ end_solver_time = time()
+ solver_time = end_solver_time - start_solver_time
+ print ' time duration: %.1f seconds' %solver_time
+ print ""
  #----------------------------------------------------------------------------------
 
 
-end_time = time()
-solution_time = end_time - start_time
+
+end_solution_time = time()
+solution_time = end_solution_time - start_solution_time
 print ' time duration: %.1f seconds' %solution_time
 print ""
+#----------------------------------------------------------------------------------
 
 
 
@@ -497,8 +586,24 @@ print ' ----------------'
 print ' SAVING RELATORY:'
 print ' ----------------'
 print ""
-print ' End simulation. Relatory saved in %s' %directory_save
-print ""
+
+if end_type == 0:
+ print ' END SIMULATION. NOT STEADY STATE'
+ print ' Relatory saved in %s' %directory_save
+ print ""
+
+elif end_type == 1:
+ print ' END SIMULATION. STEADY STATE'
+ print ' Relatory saved in %s' %directory_save
+ print ""
+
+elif end_type == 2:
+ print ' END SIMULATION. ERROR CONVERGENCE RESULT'
+ print ' Relatory saved in %s' %directory_save
+ print ""
+
+
+
 
 # -------------------------------- Export Relatory ---------------------------------------
 relatory.export(save.path, directory_save, sys.argv[0], benchmark_problem, scheme_name, mesh_name, equation_number, npoints, nelem, length_min, dt, nt, Re, Sc, import_mesh_time, assembly_time, bc_apply_time, solution_time, polynomial_order, gausspoints)
