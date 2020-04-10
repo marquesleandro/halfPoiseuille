@@ -21,6 +21,7 @@ import import_msh
 import assembly
 import benchmark_problems
 import semi_lagrangian
+import import_vtk
 import export_vtk
 import relatory
 
@@ -160,8 +161,8 @@ nphysical              = msh.nphysical
 
 
 CFL = 0.5
-#dt = float(CFL*length_min)
-dt = 0.005
+dt = float(CFL*length_min)
+#dt = 0.005
 Re = 100.0
 Sc = 1.0
 
@@ -301,6 +302,14 @@ psi = scipy.sparse.linalg.cg(condition_streamfunction.LHS,streamfunction_RHS,psi
 psi = psi[0].reshape((len(psi[0]),1))
 #----------------------------------------------------------------------------------
 
+
+# -------------------------- Import VTK File ------------------------------------
+#npoints, nelem, IEN, x, y, vx, vy, w, w, psi = import_vtk.vtkfile_linear("/home/marquesleandro/half_poiseuille/results/linear4/linear4499.vtk")
+#----------------------------------------------------------------------------------
+
+
+
+
 end_time = time()
 bc_apply_time = end_time - start_time
 print ' time duration: %.1f seconds' %bc_apply_time
@@ -344,6 +353,22 @@ os.chdir(initial_path)
 
 
 
+# ------------------------ Export VTK File ---------------------------------------
+# Linear and Mini Elements
+if polynomial_option == 1 or polynomial_option == 2:   
+ save = export_vtk.Linear2D(x,y,IEN,npoints,nelem,w,w,psi,vx,vy)
+ save.create_dir(directory_save)
+ save.saveVTK(directory_save + str(0))
+
+# Quad Element
+elif polynomial_option == 3:   
+ save = export_vtk.Quad2D(x,y,IEN,npoints,nelem,w,w,psi,vx,vy)
+ save.create_dir(directory_save)
+ save.saveVTK(directory_save + str(0))
+# --------------------------------------------------------------------------------
+
+
+
 vorticity_bc_1 = np.zeros([npoints,1], dtype = float) 
 x_old = np.zeros([npoints,1], dtype = float)
 y_old = np.zeros([npoints,1], dtype = float)
@@ -383,35 +408,6 @@ for t in tqdm(range(0, nt)):
 
 
 
-
-
- # ------------------------ Export VTK File ---------------------------------------
- print ' ----------------'
- print ' EXPORT VTK FILE:'
- print ' ----------------'
-
-
- start_time = time()
-
-
- # Linear and Mini Elements
- if polynomial_option == 1 or polynomial_option == 2:   
-  save = export_vtk.Linear2D(x,y,IEN,npoints,nelem,w,w,psi,vx,vy)
-  save.create_dir(directory_save)
-  save.saveVTK(directory_save + str(t))
-
- # Quad Element
- elif polynomial_option == 3:   
-  save = export_vtk.Quad2D(x,y,IEN,npoints,nelem,w,w,psi,vx,vy)
-  save.create_dir(directory_save)
-  save.saveVTK(directory_save + str(t))
-
-
- end_time = time()
- export_time_solver = end_time - start_time
- print ' time duration: %.1f seconds' %export_time_solver
- print ""
- # ---------------------------------------------------------------------------------
 
 
 
@@ -549,12 +545,53 @@ for t in tqdm(range(0, nt)):
 
 
 
+ end_solver_time = time()
+ solver_time = end_solver_time - start_solver_time
+ print ' time duration: %.1f seconds' %solver_time
+ print ""
+ #----------------------------------------------------------------------------------
+
+
+
+
+
+ # ------------------------ Export VTK File ---------------------------------------
+ print ' ----------------'
+ print ' EXPORT VTK FILE:'
+ print ' ----------------'
+
+
+ start_time = time()
+
+
+ # Linear and Mini Elements
+ if polynomial_option == 1 or polynomial_option == 2:   
+  save = export_vtk.Linear2D(x,y,IEN,npoints,nelem,w,w,psi,vx,vy)
+  save.create_dir(directory_save)
+  save.saveVTK(directory_save + str(t))
+
+ # Quad Element
+ elif polynomial_option == 3:   
+  save = export_vtk.Quad2D(x,y,IEN,npoints,nelem,w,w,psi,vx,vy)
+  save.create_dir(directory_save)
+  save.saveVTK(directory_save + str(t))
+
+
+ end_time = time()
+ export_time_solver = end_time - start_time
+ print ' time duration: %.1f seconds' %export_time_solver
+ print ""
+ # ---------------------------------------------------------------------------------
+
+
+
+
  # ------------------------ CHECK STEADY STATE ----------------------------------
- vx_dif = np.sqrt((vx-vx_old)**2)
- vy_dif = np.sqrt((vy-vy_old)**2)
- if np.all(vx_dif < 5e-50) and np.all(vy_dif < 5e-50):
-  end_type = 1
-  break
+ #vx_dif = np.sqrt((vx-vx_old)**2)
+ #vy_dif = np.sqrt((vy-vy_old)**2)
+ #if np.all(vx_dif < 5e-50) and np.all(vy_dif < 5e-50):
+ # end_type = 1
+ # break
  # ---------------------------------------------------------------------------------
 
  # ------------------------ CHECK CONVERGENCE RESULT ----------------------------------
@@ -563,12 +600,6 @@ for t in tqdm(range(0, nt)):
   break
  # ---------------------------------------------------------------------------------
 
-
- end_solver_time = time()
- solver_time = end_solver_time - start_solver_time
- print ' time duration: %.1f seconds' %solver_time
- print ""
- #----------------------------------------------------------------------------------
 
 
 
