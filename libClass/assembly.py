@@ -15,7 +15,7 @@
 
 import sys
 import numpy as np
-import gaussian_quadrature
+import gaussianQuadrature
 import scipy.sparse as sps
 from tqdm import tqdm
 
@@ -26,7 +26,7 @@ def Element1D(_polynomial_option, _GL, _npoints, _nelem, _IEN, _x, _GAUSSPOINTS)
  M = sps.lil_matrix((_npoints,_npoints), dtype = float)
  G = sps.lil_matrix((_npoints,_npoints), dtype = float)
  
- element1D = gaussian_quadrature.Element1D(_x, _IEN, _GAUSSPOINTS)
+ element1D = gaussianQuadrature.Element1D(_x, _IEN, _GAUSSPOINTS)
  
  if _polynomial_option == 1:
   polynomial_order = 'Linear Element'
@@ -89,7 +89,7 @@ def Element2D(_polynomial_option, _GL, _npoints, _nelem, _IEN, _x, _y, _GAUSSPOI
  Gy = sps.lil_matrix((_npoints,_npoints), dtype = float)
 
 
- element2D = gaussian_quadrature.Element2D(_x, _y, _IEN, _GAUSSPOINTS)
+ element2D = gaussianQuadrature.Element2D(_x, _y, _IEN, _GAUSSPOINTS)
 
  if _polynomial_option == 1:
   polynomial_order = 'Linear Element'
@@ -209,7 +209,7 @@ def Mini_NS2D(_GLV, _GLP, _NV, _NP, _nelem, _IEN, _x, _y):
  D = sps.lil_matrix((_NP,2*_NV), dtype = float)
 
 
- mini = gaussian_quadrature.Mini(_x, _y, _IEN)
+ mini = gaussianQuadrature.Mini(_x, _y, _IEN)
 
  for e in tqdm(range(0, _nelem)):
   mini.numerical(e)
